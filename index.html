@@ -54,6 +54,7 @@
   </head>
 
   <body>
+    
     <div class="bg-base-100">
       <header class="border-b border-base-content/20 bg-base-100 py-0.25 fixed top-0 z-10 w-full">
         <nav class="navbar mx-auto max-w-[1280px] rounded-b-xl px-4 sm:px-6 lg:px-8">
@@ -473,6 +474,41 @@
     <script src="assets/dist/js/theme-utils.js"></script>
     <script src="assets/dist/js/main.js"></script>
     <script src="assets/dist/js/landing-page-free.js"></script>
+    <script>
+      document.querySelector('form').addEventListener('submit', async (e) => {
+      e.preventDefault(); // Mencegah halaman refresh otomatis
+
+      // Mengambil nilai input dari form
+      const dataBooking = {
+        nama_pelanggan: document.getElementById('username').value,
+        no_whatsapp: document.getElementById('userphone').value,
+        tgl_keberangkatan: document.getElementById('userdate').value,
+        id_paket: document.getElementById('packageselect').value === 'open-trip' ? 1 : 
+                  document.getElementById('packageselect').value === 'private-exclusive' ? 2 : 3,
+        catatan_jemput: document.getElementById('usermessage').value
+      };
+
+      try {
+        // Mengirim data menggunakan fetch API ke server backend
+        const response = await fetch('http://localhost:3000/api/booking', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataBooking)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('Selamat! Booking Online Bromo Anda Berhasil.');
+          document.querySelector('form').reset(); // Mengosongkan form kembali
+        } else {
+          alert('Terjadi kesalahan: ' + result.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Tidak dapat terhubung ke server backend.');
+      }
+    });
+    </script>
 
     <button id="scrollToTopBtn" class="btn btn-circle btn-soft btn-secondary/20 bottom-15 end-15 fixed z-[3] hidden" aria-label="Scroll to top"><span class="icon-[tabler--chevron-up] size-5 shrink-0"></span></button>
   </body>

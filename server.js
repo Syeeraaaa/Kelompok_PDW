@@ -4,24 +4,35 @@ const db = require('./db');
 
 const app = express();
 app.use(cors());
-app.use(express.json()); // Agar server bisa membaca data berformat JSON
+app.use(express.json());
 
-// API Endpoint untuk menerima data dari form Booking Online
+// Tampilan utama root backend agar tidak memunculkan 'Cannot GET /'
+app.get('/', (req, res) => {
+  res.send('Server BromoAdventure API aktif dan siap menerima data booking!');
+});
+
+// Endpoint API untuk menerima kiriman data form booking dari frontend
 app.post('/api/booking', (req, res) => {
   const { nama_pelanggan, no_whatsapp, tgl_keberangkatan, id_paket, catatan_jemput } = req.body;
+
+  // Validasi Backend: Memastikan field wajib tidak dikirim kosong
+  if (!nama_pelanggan || !no_whatsapp || !tgl_keberangkatan || !id_paket) {
+    return res.status(400).json({ success: false, message: 'Data formulir tidak lengkap!' });
+  }
 
   const query = `INSERT INTO bookings (nama_pelanggan, no_whatsapp, tgl_keberangkatan, id_paket, catatan_jemput) 
                  VALUES (?, ?, ?, ?, ?)`;
 
   db.query(query, [nama_pelanggan, no_whatsapp, tgl_keberangkatan, id_paket, catatan_jemput], (err, result) => {
     if (err) {
-      return res.status(500).json({ success: false, message: 'Gagal menyimpan data booking', error: err });
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Gagal menyimpan ke database', error: err });
     }
     res.status(200).json({ success: true, message: 'Booking berhasil disimpan!' });
   });
 });
 
-// Menjalankan server di port 3000
-app.listen(3000, () => {
-  console.log('Server Back-End berjalan di http://localhost:3000');
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server Back-End berjalan dengan sukses di http://localhost:${PORT}`);
 });
